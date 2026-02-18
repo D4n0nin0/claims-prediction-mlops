@@ -1,0 +1,92 @@
+# config/data_generation.yaml
+# Parámetros para la generación sintética de datos de reclamaciones
+
+output:
+  path: "data/raw/insurance_claims_synthetic.csv"
+  n_samples: 50000
+  random_seed: 42
+
+temporal:
+  start_date: "2020-01-01"
+  end_date: "2023-12-31"
+  seasonality_effect: true  # Añadir más accidentes en invierno
+
+policyholder:
+  age_distribution:
+    min: 18
+    max: 85
+    mean: 45
+    std: 15
+  
+  sex_distribution:
+    MALE: 0.48
+    FEMALE: 0.52
+  
+  education_levels:
+    - "High School"
+    - "Bachelor"
+    - "Master"
+    - "PhD"
+    - "No Education"
+  education_weights: [0.35, 0.30, 0.20, 0.05, 0.10]
+  
+  income_distribution:
+    mean: 55000
+    std: 25000
+    min: 10000
+    max: 500000
+
+vehicle:
+  age_distribution:
+    min: 0
+    max: 25
+    # Los coches se distribuyen exponencialmente (más coches nuevos que viejos)
+    lambda: 0.15  # Parámetro para distribución exponencial
+  
+  makes: ["Toyota", "Honda", "Ford", "Chevrolet", "Nissan", "BMW", "Mercedes", "Audi", "Hyundai", "Kia"]
+  make_weights: [0.18, 0.15, 0.14, 0.12, 0.10, 0.08, 0.07, 0.06, 0.05, 0.05]
+  
+  price_multiplier_by_age:
+    # El precio del vehículo decrece con la edad
+    0: 1.0
+    3: 0.7
+    6: 0.5
+    10: 0.3
+    15: 0.2
+
+incident:
+  types:
+    - "Single Vehicle Collision"
+    - "Multi-vehicle Collision"
+    - "Parked Car"
+    - "Rear-end Collision"
+    - "Head-on Collision"
+    - "Side Collision"
+  type_weights: [0.25, 0.30, 0.15, 0.15, 0.05, 0.10]
+  
+  severity_levels:
+    - "Minor Damage"
+    - "Moderate Damage"
+    - "Major Damage"
+    - "Total Loss"
+  severity_weights: [0.50, 0.30, 0.15, 0.05]
+  
+  authorities_contacted:
+    - "Police"
+    - "Fire"
+    - "Ambulance"
+    - "None"
+  authorities_weights: [0.70, 0.10, 0.05, 0.15]
+
+fraud:
+  base_rate: 0.06  # 6% de reclamaciones fraudulentas
+  
+  # Multiplicadores de probabilidad según condiciones (efectos interactivos)
+  multipliers:
+    high_claim_amount: 2.5      # > $20,000
+    old_car: 1.8                # > 10 años
+    no_authorities: 3.0         # No contactaron a autoridades
+    weekend_incident: 2.0       # Ocurrió en fin de semana
+    late_night: 2.2             # Ocurrió entre 12am y 5am
+    injury_claim: 1.5           # Reclamación con lesiones
+    previous_claims: 1.3        # Historial de reclamaciones (proxy)
